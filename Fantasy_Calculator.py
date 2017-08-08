@@ -1,12 +1,16 @@
+# David Del Grosso
+# June 2017
+# This code acts as a scoring calculator for a custom Fantasy Baseball leagje
+
 import requests
 import csv
 from bs4 import BeautifulSoup
 import os
-from operator import itemgetter, attrgetter
 
 print "Initializing..."
 inputs = open('Scoring_Rules.csv', 'r')
 
+# Initialize scoring values
 hits = str(inputs.readline())
 doubles = str(inputs.readline())
 triples = str(inputs.readline())
@@ -21,6 +25,9 @@ e = int(rbis.strip()[-1])
 
 inputs.close()
 
+# Initialize teams and players
+# Team names are referred to as coaches
+# Good for a 12 team league
 coach_names = []
 roster = open('League_Rosters.csv', 'r')
 
@@ -325,6 +332,7 @@ final_coach12 = []
 
 roster.close()
 
+# Get urls of each team
 print "Retrieving Data..."
 url = 'http://www.espn.com/mlb/teams'
 mlb_teams = requests.get(url)
@@ -346,12 +354,14 @@ for team_name in team_names:
         team_name = team_url.split('/')[-1]
         name.update({info.text : team_name})
 
+
+
+# Collect player data from team url
 BASE_URL = 'http://www.espn.com/mlb/team/stats/batting/_/name/{0}/{1}'
 category_header = ["MLB BATTING STATS"]
 header = ["NAME", "H", "2B", "3B", "HR", "RBI", "TOTAL"]
-    
-league_points = []
 
+league_points = []
 for key in abb:
     mlb_team = requests.get(BASE_URL.format(abb[key], name[key]))
     team_page = BeautifulSoup(mlb_team.text, 'html.parser')
@@ -389,8 +399,9 @@ for key in abb:
         points_row.append(total)
         points.append(points_row)
         league_points.append(points_row)
-      
-league_points.sort(key=lambda x: x[6], reverse=True)              
+
+# Sort players by point totals
+league_points.sort(key=lambda x: x[6], reverse=True)
 
 with open("All_Player_Stats.csv", 'w') as csv_file:
     writer = csv.writer(csv_file)
@@ -399,6 +410,8 @@ with open("All_Player_Stats.csv", 'w') as csv_file:
     for item in league_points:
         writer.writerow(item)
 
+
+# Calculate top 5 player total for each coach
 print "Calculating..."
 
 with open("Standings.csv", 'w') as csv_file:
@@ -619,7 +632,9 @@ with open("Standings.csv", 'a') as csv_file:
     for item in final_coach12:
         writer.writerow(item)
 
+
+# Automatically open results
 print "Completed"      
  
-os.system("open ~/Desktop/Random_Py/MLB/Fantasy_Calculator/Standings.csv")    
-os.system("open ~/Desktop/Random_Py/MLB/Fantasy_Calculator/All_Player_Stats.csv")
+os.system("open ~/Python/MLB/Fantasy_Calculator/Standings.csv")
+os.system("open ~/Python/MLB/Fantasy_Calculator/All_Player_Stats.csv")
