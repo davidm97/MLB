@@ -1,6 +1,6 @@
 # David Del Grosso
 # June 2017
-# This code acts as a scoring calculator for a custom Fantasy Baseball leagje
+# This code acts as a scoring calculator for a custom Fantasy Baseball league
 
 import requests
 import csv
